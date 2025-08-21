@@ -7,21 +7,65 @@
 #include <Adafruit_PWMServoDriver.h>
 #include <Servo.h>
 
-double static const P = 0;
-double static const I = 0;
-double static const D = 0;
+// extra shit
+#include "Communications.h"
+#include "pid.c"
 
 
-void setup(){
-// setup of controllers and comms    
-// set its own state to grounded
+// pin definitions
+#define CE_PIN 9
+#define CSN_PIN 10
+enum MotorNumbers {
+  MOTOR_1,
+  MOTOR_2,
+  MOTOR_3,
+  MOTOR_4,
+};
+
+// PWM driver declaration
+Adafruit_PWMServoDriver BLDCManager = Adafruit_PWMServoDriver(0x40);
+
+// Radio declaration
+RF24 radio(CE_PIN, CSN_PIN);
+const byte address[6] = "00001";
+
+
+double static const kP,kI,kD;
+
+
+States static DroneState;
+
+
+
+void runMotors(double m1, double m2, double m3, double m4);
+
+double timemarker = 0.0d;
+
+void setup(){ 
+  // setup of controllers    
+  BLDCManager.begin();
+  BLDCManager.setPWMFreq(50.0f);
+  
+  // create PID Controller
+  t_PIDController controller;
+
+
+  // communications initialization
+  radio.begin();
+  
+  radio.openReadingPipe(0, address);
+  radio.setPALevel(RF24_PA_MAX);
+  radio.startListening();
+  // TODO: add second pipeline for communication back
+
+  // set its own state to grounded
+  DroneState = GROUNDED;
+  
 
 }
 
 void loop(){
 // get control packets, read and follow, then correct with PID
+
 }
 
-double* PIDCorrection(float setpoint, float gyroReading){
-    return NULL;
-}
